@@ -1,7 +1,22 @@
 <template>
   <input v-model="newTask" type="text" placeholder="ENTER YOUR TASK HERE..." />
   <button class="add-btn" @click="addTask">ADD</button>
-  <div v-for="(task, index) in tasks" :key="index">
+
+  <div class="filters">
+    <label>
+      <input v-model="selectedFilter" value="completed" type="checkbox" />COMPLETED
+    </label>
+    <label>
+      <input v-model="selectedFilter" value="pending" type="checkbox" />PENDING
+    </label>
+    <label><input v-model="selectedFilter" value="all" type="checkbox" />ALL </label>
+  </div>
+
+  <div class="searchTodos">
+  <input v-model="searchText" type="text" placeholder="SEARCH TODOS..." />
+  </div>
+
+  <div v-for="(task, index) in taskClone" :key="index">
     <div
       style="
         display: flex;
@@ -13,7 +28,8 @@
       <div
         class="task-text"
         :style="{
-          textDecoration: task.completed ? 'line-through' : 'none', textDecorationThickness: '3px',
+          textDecoration: task.completed ? 'line-through' : 'none',
+          textDecorationThickness: '3px',
         }"
       >
         {{ task.text }}
@@ -22,12 +38,12 @@
       <button
         class="markcomplete-btn"
         v-if="!task.completed"
-        @click="markComplete(index)"
+        @click="markComplete(task.id)"
       >
         MARK AS COMPLETE
       </button>
       <button class="completed-btn" v-else disabled>COMPLETED</button>
-      <button class="delete-btn" @click="deleteTask(index)">DELETE</button>
+      <button class="delete-btn" @click="deleteTask(task.id)">DELETE</button>
     </div>
   </div>
 </template>
@@ -37,7 +53,10 @@ export default {
   data() {
     return {
       newTask: "",
+      searchText : "",
+      selectedFilter : ["all"],
       tasks: [],
+     
     };
   },
   methods: {
@@ -46,28 +65,60 @@ export default {
         this.tasks.push({
           text: this.newTask,
           completed: false,
+          id: new Date().getTime()
         });
         this.newTask = "";
-      }
+        
+      } 
     },
 
-    markComplete(index) {
+    markComplete(id) {
+      let index = this.tasks.findIndex(task => task.id === id);
       this.tasks[index].completed = true;
     },
 
-    deleteTask(index) {
+    deleteTask(id) {
+      let index = this.tasks.findIndex(task => task.id === id);
       this.tasks.splice(index, 1);
+    },
+
+    
+  },
+
+  computed: {
+    taskClone() {
+      let result = [];     
+    
+      for (let i = 0; i < this.tasks.length; i++) {
+
+        
+        let taskName = this.tasks[i].text;
+         if(this.selectedFilter.includes("all") && taskName.includes(this.searchText)) {
+          result.push(this.tasks[i]);
+          continue;
+         
+        }
+        if (this.tasks[i].completed === true && this.selectedFilter.includes("completed") && taskName.includes(this.searchText)) {
+          result.push(this.tasks[i]);
+        }
+        if (
+          this.tasks[i].completed !== true && this.selectedFilter.includes("pending") && taskName.includes(this.searchText)
+        ) {
+          result.push(this.tasks[i]);
+        }
+      }
+      return result;
     },
   },
 };
-</script>
+</script> 
 
 <style>
 body {
   margin-top: 80px;
   margin-left: 80px;
 }
-input {
+input[type="text"] {
   width: 280px;
   padding: 13px;
   margin-right: 12px;
@@ -89,16 +140,14 @@ input {
   text-transform: uppercase;
   font-family: Arial, Helvetica, sans-serif;
   font-size: small;
-
 }
 
 .add-btn {
   background-color: white;
-  padding: 12px;
+  padding: 12px;   
   border-radius: 10px;
   width: 120px;
   border: 2px solid black;
-
 }
 
 .delete-btn {
@@ -129,5 +178,19 @@ input {
   text-decoration-thickness: bold;
 }
 
+.searchTodos{
+  margin-top: 20px;
+}
+
+.filters {
+  display: flex;
+  gap: 30px;
+}
+
+label {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
 
 </style>

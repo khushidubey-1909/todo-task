@@ -1,17 +1,16 @@
+<template>
+  <TodoTask />
+</template>
+
 <script>
-import TODOtask from '@/components/TODOtask.vue'
+import TodoTask from './components/TodoTask.vue';
 
 export default{
   components:{
-    TODOtask
+    TodoTask,
   }
 }
 </script>
-
-<template>
-  
-  <TODOtask />
-</template>
 
 <style>
 

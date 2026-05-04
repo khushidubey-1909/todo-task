@@ -2,7 +2,7 @@
   <input v-model="newTask" type="text" placeholder="ENTER YOUR TASK HERE..." />
   <button class="add-btn" @click="addTask">ADD</button>
 
-  <div class="filters">
+  <!-- <div class="filters">
     <label>
       <input v-model="selectedFilter" value="completed" type="checkbox" />COMPLETED
     </label>
@@ -10,7 +10,8 @@
       <input v-model="selectedFilter" value="pending" type="checkbox" />PENDING
     </label>
     <label><input v-model="selectedFilter" value="all" type="checkbox" />ALL </label>
-  </div>
+  </div> -->
+  <FilterTask />
 
   <div class="searchTodos">
   <input v-model="searchText" type="text" placeholder="SEARCH TODOS..." />
@@ -49,14 +50,20 @@
 </template>
 
 <script>
+import {useTodoStore} from '@/stores/todo.js'
+import { mapState } from 'pinia';
+import FilterTask from './FilterTask.vue';
+
 export default {
+  components: {
+    FilterTask
+  },
   data() {
     return {
       newTask: "",
       searchText : "",
-      selectedFilter : ["all"],
+      // selectedFilter : ["all"],
       tasks: [],
-     
     };
   },
   methods: {
@@ -86,14 +93,14 @@ export default {
   },
 
   computed: {
+    ...mapState(useTodoStore, ["selectedFilter"]),
     taskClone() {
       let result = [];     
     
       for (let i = 0; i < this.tasks.length; i++) {
-
         
         let taskName = this.tasks[i].text;
-         if(this.selectedFilter.includes("all") && taskName.includes(this.searchText)) {
+        if(this.selectedFilter.includes("all") && taskName.includes(this.searchText)) {
           result.push(this.tasks[i]);
           continue;
          
